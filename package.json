@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 45321",
     "build": "tsc && vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 45321"
+    "preview": "vite preview --host 127.0.0.1 --port 45321",
+    "sim": "npx --yes tsx scripts/sim-drive.mjs"
   },
   "devDependencies": {
     "typescript": "~5.9.3",
