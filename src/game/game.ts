@@ -1,4 +1,5 @@
 import { Car } from "./car";
+import { type Difficulty, DIFFICULTIES, parseDifficulty } from "./difficulty";
 import { Input } from "./input";
 import { Renderer } from "./renderer";
 import { Track } from "./track";
@@ -21,12 +22,14 @@ export class Game {
   private last = 0;
   private running = false;
   private readonly demoAssist: boolean;
+  private difficulty: Difficulty;
 
   private elSpeed!: HTMLElement;
   private elLap!: HTMLElement;
   private elTime!: HTMLElement;
   private elBest!: HTMLElement;
   private elSeed!: HTMLElement;
+  private elDiff!: HTMLElement;
   private elStatus!: HTMLElement;
   private elOff!: HTMLElement;
   private overlay!: HTMLElement;
@@ -34,11 +37,14 @@ export class Game {
   constructor(canvas: HTMLCanvasElement, hud: HTMLElement) {
     this.hud = hud;
     this.demoAssist = new URLSearchParams(location.search).has("demo");
-    this.track = Track.generate();
+    const saved = localStorage.getItem("apex-difficulty");
+    this.difficulty = parseDifficulty(saved);
+    this.track = Track.generate(Date.now(), this.difficulty);
     this.car = new Car(this.track.start, this.track.startAngle);
     this.input = new Input();
     this.renderer = new Renderer(canvas);
     this.bindHud();
+    this.syncDifficultyButtons();
     this.renderer.cameraX = this.car.x;
     this.renderer.cameraY = this.car.y;
     this.updateHud(true);
@@ -68,6 +74,7 @@ export class Game {
     this.elTime = this.hud.querySelector("[data-time]")!;
     this.elBest = this.hud.querySelector("[data-best]")!;
     this.elSeed = this.hud.querySelector("[data-seed]")!;
+    this.elDiff = this.hud.querySelector("[data-diff]")!;
     this.elStatus = this.hud.querySelector("[data-status]")!;
     this.elOff = this.hud.querySelector("[data-off]")!;
     this.overlay = this.hud.querySelector("[data-overlay]")!;
@@ -78,10 +85,39 @@ export class Game {
     this.hud.querySelectorAll("[data-retry]").forEach((el) => {
       el.addEventListener("click", () => this.retry());
     });
+    this.hud.querySelectorAll<HTMLButtonElement>("[data-difficulty]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const next = parseDifficulty(btn.dataset.difficulty);
+        this.setDifficulty(next);
+      });
+    });
+  }
+
+  private setDifficulty(difficulty: Difficulty) {
+    if (this.difficulty === difficulty) {
+      // Same difficulty → still roll a fresh layout
+      this.newTrack();
+      return;
+    }
+    this.difficulty = difficulty;
+    localStorage.setItem("apex-difficulty", difficulty);
+    this.syncDifficultyButtons();
+    this.newTrack();
+  }
+
+  private syncDifficultyButtons() {
+    this.hud.querySelectorAll<HTMLButtonElement>("[data-difficulty]").forEach((btn) => {
+      const active = btn.dataset.difficulty === this.difficulty;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    const preset = DIFFICULTIES[this.difficulty];
+    const hint = this.hud.querySelector("[data-diff-hint]");
+    if (hint) hint.textContent = preset.blurb;
   }
 
   private newTrack() {
-    this.track = Track.generate();
+    this.track = Track.generate(Date.now(), this.difficulty);
     this.car.reset(this.track.start, this.track.startAngle);
     this.renderer.cameraX = this.car.x;
     this.renderer.cameraY = this.car.y;
@@ -132,6 +168,7 @@ export class Game {
       this.car.bestLapMs === null ? "--:--.--" : formatTime(this.car.bestLapMs);
     if (force) {
       this.elSeed.textContent = `#${this.track.seed.toString(36).toUpperCase().slice(-5)}`;
+      this.elDiff.textContent = this.track.difficultyLabel;
     }
     this.elOff.hidden = this.car.onTrack || this.car.finished;
     this.elStatus.textContent = this.car.finished
@@ -148,14 +185,13 @@ export class Game {
     title.textContent = "完赛！";
     const best =
       this.car.bestLapMs === null ? "--" : formatTime(this.car.bestLapMs);
-    detail.textContent = `总时间 ${formatTime(this.car.totalMs)} · 最快圈 ${best}`;
+    detail.textContent = `${this.track.difficultyLabel} · 总时间 ${formatTime(this.car.totalMs)} · 最快圈 ${best}`;
   }
 
   private hideOverlay() {
     this.overlay.hidden = true;
   }
 
-  /** Optional racing-line assist when launched with ?demo=1 (for demos/tests). */
   private runDemoAssist() {
     const q = this.track.query({ x: this.car.x, y: this.car.y });
     const state = this.input.state;

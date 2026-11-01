@@ -4,7 +4,8 @@
 import { Track } from "../src/game/track.ts";
 import { Car } from "../src/game/car.ts";
 
-const track = Track.generate(42);
+const difficulty = process.argv[2] || "medium";
+const track = Track.generate(42, difficulty);
 const car = new Car(track.start, track.startAngle);
 const controls = { up: true, down: false, left: false, right: false, restart: false };
 
@@ -42,6 +43,7 @@ for (let i = 0; i < 60 * 8; i++) {
 console.log(
   JSON.stringify(
     {
+      difficulty: track.difficulty,
       seed: track.seed,
       halfWidth: track.halfWidth,
       totalLength: Math.round(track.totalLength),

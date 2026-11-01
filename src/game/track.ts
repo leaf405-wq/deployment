@@ -1,3 +1,4 @@
+import { DIFFICULTIES, type Difficulty, type DifficultyPreset } from "./difficulty";
 import {
   type Vec2,
   add,
@@ -22,7 +23,7 @@ export type TrackQuery = {
   onTrack: boolean;
   distanceToCenter: number;
   halfWidth: number;
-  progress: number; // 0..1 along lap
+  progress: number;
   segmentIndex: number;
   closest: Vec2;
   tangent: Vec2;
@@ -36,6 +37,8 @@ export class Track {
   readonly start: Vec2;
   readonly startAngle: number;
   readonly seed: number;
+  readonly difficulty: Difficulty;
+  readonly difficultyLabel: string;
 
   private constructor(
     samples: TrackSample[],
@@ -44,6 +47,8 @@ export class Track {
     start: Vec2,
     startAngle: number,
     seed: number,
+    difficulty: Difficulty,
+    difficultyLabel: string,
   ) {
     this.samples = samples;
     this.totalLength = totalLength;
@@ -51,45 +56,38 @@ export class Track {
     this.start = start;
     this.startAngle = startAngle;
     this.seed = seed;
+    this.difficulty = difficulty;
+    this.difficultyLabel = difficultyLabel;
   }
 
-  static generate(seed = Date.now()): Track {
+  static generate(seed = Date.now(), difficulty: Difficulty = "medium"): Track {
+    const preset = DIFFICULTIES[difficulty];
     const rng = mulberry32(seed >>> 0);
-    const halfWidth = 52 + rng() * 12;
-    const pointCount = 12 + Math.floor(rng() * 5);
-    const baseRadius = 520 + rng() * 180;
-    const control: Vec2[] = [];
+    const halfWidth = lerpRange(preset.halfWidth, rng());
+    const pointCount =
+      preset.pointCount[0] +
+      Math.floor(rng() * (preset.pointCount[1] - preset.pointCount[0] + 1));
+    const baseRadius = lerpRange(preset.baseRadius, rng());
+    const stretchX = lerpRange(preset.stretchX, rng());
+    const stretchY = lerpRange(preset.stretchY, rng());
+    const control = buildControlPoints(preset, rng, pointCount, baseRadius, stretchX, stretchY);
 
-    for (let i = 0; i < pointCount; i++) {
-      const angle = (i / pointCount) * Math.PI * 2;
-      // Keep start/finish relatively calm (first two control points near base radius)
-      const nearStart = i === 0 || i === 1 || i === pointCount - 1;
-      const radiusJitter = nearStart ? 0.92 + rng() * 0.1 : 0.68 + rng() * 0.4;
-      const radial = baseRadius * radiusJitter;
-      const bulge = nearStart ? (rng() - 0.5) * 30 : (rng() - 0.5) * 90;
-      const stretchX = 1.2 + rng() * 0.12;
-      const stretchY = 0.88 + rng() * 0.1;
-      const cx = Math.cos(angle) * (radial + bulge) * stretchX;
-      const cy = Math.sin(angle) * (radial + bulge * 0.8) * stretchY;
-      control.push({ x: cx, y: cy });
-    }
-
-    // Smooth control polygon once so corners are less needle-sharp
-    for (let pass = 0; pass < 2; pass++) {
+    for (let pass = 0; pass < preset.smoothPasses; pass++) {
       const smoothed: Vec2[] = [];
       for (let i = 0; i < control.length; i++) {
         const prev = control[(i - 1 + control.length) % control.length];
         const curr = control[i];
         const next = control[(i + 1) % control.length];
+        // Keep start area calmer on every pass
+        const w = i === 0 || i === 1 || i === control.length - 1 ? 0.72 : 0.5;
         smoothed.push({
-          x: curr.x * 0.5 + prev.x * 0.25 + next.x * 0.25,
-          y: curr.y * 0.5 + prev.y * 0.25 + next.y * 0.25,
+          x: curr.x * w + prev.x * ((1 - w) / 2) + next.x * ((1 - w) / 2),
+          y: curr.y * w + prev.y * ((1 - w) / 2) + next.y * ((1 - w) / 2),
         });
       }
       control.splice(0, control.length, ...smoothed);
     }
 
-    // Smooth closed path via Catmull-Rom subdivision
     const dense = resampleClosedCatmull(control, 18);
     const samples: TrackSample[] = [];
     let cumulative = 0;
@@ -111,11 +109,19 @@ export class Track {
       });
     }
     const total = cumulative + dist(dense[dense.length - 1], dense[0]);
-
     const start = samples[0].center;
     const startAngle = Math.atan2(samples[0].tangent.y, samples[0].tangent.x);
 
-    return new Track(samples, total, halfWidth, start, startAngle, seed);
+    return new Track(
+      samples,
+      total,
+      halfWidth,
+      start,
+      startAngle,
+      seed,
+      difficulty,
+      preset.label,
+    );
   }
 
   query(pos: Vec2): TrackQuery {
@@ -161,7 +167,6 @@ export class Track {
     };
   }
 
-  /** World bounds for camera / grass fill. */
   bounds(pad = 200): { minX: number; minY: number; maxX: number; maxY: number } {
     let minX = Infinity;
     let minY = Infinity;
@@ -182,6 +187,56 @@ export class Track {
       maxY: maxY + pad,
     };
   }
+}
+
+function buildControlPoints(
+  preset: DifficultyPreset,
+  rng: () => number,
+  pointCount: number,
+  baseRadius: number,
+  stretchX: number,
+  stretchY: number,
+): Vec2[] {
+  const control: Vec2[] = [];
+  const chicanePhase = rng() * Math.PI * 2;
+  const kinkPhase = rng() * Math.PI * 2;
+
+  for (let i = 0; i < pointCount; i++) {
+    const angle = (i / pointCount) * Math.PI * 2;
+    const nearStart = i === 0 || i === 1 || i === pointCount - 1;
+    const jitterT = nearStart ? 0.15 : rng();
+    const radiusJitter = lerpRange(preset.radiusJitter, jitterT);
+    const radial = baseRadius * radiusJitter;
+    const bulge = nearStart
+      ? (rng() - 0.5) * preset.bulge * 0.25
+      : (rng() - 0.5) * preset.bulge;
+
+    // Multi-frequency offsets create chicanes / esses / hairpin approaches
+    const calm = nearStart ? 0.12 : 1;
+    const chicane =
+      Math.sin(angle * 3 + chicanePhase) * preset.chicaneAmp * calm;
+    const kink = Math.sin(angle * 5 + kinkPhase) * preset.kinkAmp * calm;
+    const lobe =
+      preset.kinkAmp > 0
+        ? Math.sin(angle * 2 + chicanePhase * 0.5) * preset.bulge * 0.22 * calm
+        : 0;
+
+    const r = radial + bulge + lobe;
+    const tangentOffset = chicane + kink;
+    const cx =
+      Math.cos(angle) * r * stretchX +
+      Math.cos(angle + Math.PI / 2) * tangentOffset * stretchX;
+    const cy =
+      Math.sin(angle) * r * stretchY +
+      Math.sin(angle + Math.PI / 2) * tangentOffset * stretchY;
+    control.push({ x: cx, y: cy });
+  }
+
+  return control;
+}
+
+function lerpRange(range: [number, number], t: number): number {
+  return range[0] + (range[1] - range[0]) * t;
 }
 
 function lerp2(a: number, b: number, t: number): number {
@@ -228,8 +283,7 @@ function resampleClosedCatmull(control: Vec2[], stepsPerSeg: number): Vec2[] {
       out.push(catmullRom(p0, p1, p2, p3, s / stepsPerSeg));
     }
   }
-  // Ensure roughly even spacing
-  return evenSpacing(out, Math.max(80, Math.floor(out.length * 0.55)));
+  return evenSpacing(out, Math.max(90, Math.floor(out.length * 0.6)));
 }
 
 function evenSpacing(pts: Vec2[], count: number): Vec2[] {

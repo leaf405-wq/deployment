@@ -14,6 +14,16 @@ app.innerHTML = `
           <span class="brand-sub">CIRCUIT</span>
         </div>
         <div class="meta">
+          <div class="diff-panel" role="group" aria-label="赛道难度">
+            <span class="diff-label">难度</span>
+            <div class="diff-toggle">
+              <button type="button" class="diff-btn" data-difficulty="easy" aria-pressed="false">简单</button>
+              <button type="button" class="diff-btn" data-difficulty="medium" aria-pressed="false">普通</button>
+              <button type="button" class="diff-btn" data-difficulty="hard" aria-pressed="false">困难</button>
+            </div>
+            <span class="diff-hint" data-diff-hint></span>
+          </div>
+          <span class="pill">难度 <strong data-diff>—</strong></span>
           <span class="pill">赛道 <strong data-seed>—</strong></span>
           <button type="button" class="btn ghost" data-new-track>随机新赛道 (R)</button>
         </div>
@@ -48,7 +58,7 @@ app.innerHTML = `
         <kbd>↓</kbd> 刹车 / 倒车
         <kbd>←</kbd><kbd>→</kbd> 转向
         <span class="sep">·</span>
-        <span>三圈完赛 · 冲出赛道会大幅失速</span>
+        <span>选难度生成赛道 · 三圈完赛 · 冲出赛道会大幅失速</span>
       </footer>
 
       <div class="overlay" data-overlay hidden>

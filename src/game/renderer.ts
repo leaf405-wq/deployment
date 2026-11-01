@@ -38,7 +38,8 @@ export class Renderer {
     const smooth = 1 - Math.exp(-6 * dt);
     this.cameraX += (tx - this.cameraX) * smooth;
     this.cameraY += (ty - this.cameraY) * smooth;
-    const speedZoom = 1 - Math.min(0.18, Math.abs(car.speed) / 3200);
+    // Slightly pulled back so the larger car and complex tracks read clearly
+    const speedZoom = 0.92 - Math.min(0.2, Math.abs(car.speed) / 3000);
     this.zoom += (speedZoom - this.zoom) * smooth;
   }
 
@@ -100,7 +101,7 @@ export class Renderer {
       ctx.rotate(s.angle);
       ctx.globalAlpha = s.life * 0.35;
       ctx.fillStyle = "#0a0a0a";
-      ctx.fillRect(-6, -1.5, 12, 3);
+      ctx.fillRect(-10, -2, 20, 4);
       ctx.restore();
     }
 
@@ -185,15 +186,29 @@ export class Renderer {
     ctx.closePath();
     ctx.stroke();
 
-    // Kerbs near start
-    for (let i = 0; i < 8; i++) {
+    // Kerbs near start + on sharper corners (reads better on complex maps)
+    const kerbIndices = new Set<number>();
+    for (let i = 0; i < 10; i++) kerbIndices.add(i);
+    for (let i = 0; i < samples.length; i++) {
+      const prev = samples[(i - 1 + samples.length) % samples.length];
+      const curr = samples[i];
+      const cross =
+        prev.tangent.x * curr.tangent.y - prev.tangent.y * curr.tangent.x;
+      if (Math.abs(cross) > 0.08) {
+        for (let k = -1; k <= 2; k++) {
+          kerbIndices.add((i + k + samples.length) % samples.length);
+        }
+      }
+    }
+    const ordered = [...kerbIndices].sort((a, b) => a - b);
+    for (const i of ordered) {
       const s = samples[i];
+      const s2 = samples[(i + 1) % samples.length];
       const n = s.normal;
       ctx.fillStyle = i % 2 === 0 ? "#e11d48" : "#f8fafc";
       ctx.beginPath();
       ctx.moveTo(s.left.x, s.left.y);
       ctx.lineTo(s.left.x + n.x * 10, s.left.y + n.y * 10);
-      const s2 = samples[(i + 1) % samples.length];
       ctx.lineTo(s2.left.x + s2.normal.x * 10, s2.left.y + s2.normal.y * 10);
       ctx.lineTo(s2.left.x, s2.left.y);
       ctx.closePath();
@@ -258,41 +273,149 @@ export class Renderer {
     ctx.translate(car.x, car.y);
     ctx.rotate(car.angle);
 
-    // Shadow
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    // Soft ground shadow
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
     ctx.beginPath();
-    ctx.ellipse(2, 4, 16, 9, 0, 0, Math.PI * 2);
+    ctx.ellipse(4, 7, 28, 14, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Body
-    const body = ctx.createLinearGradient(-14, 0, 18, 0);
-    body.addColorStop(0, "#c4f042");
-    body.addColorStop(0.5, "#e8ff47");
-    body.addColorStop(1, "#9bc91f");
+    // Exhaust glow when accelerating
+    if (car.throttleOn && Math.abs(car.speed) > 20) {
+      const glow = ctx.createRadialGradient(-30, 0, 0, -30, 0, 18);
+      glow.addColorStop(0, "rgba(255, 140, 40, 0.55)");
+      glow.addColorStop(1, "rgba(255, 80, 0, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(-30, -4, 10, 0, Math.PI * 2);
+      ctx.arc(-30, 4, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Wheels (under body)
+    const paintWheel = (x: number, y: number, w: number, h: number, color: string) => {
+      ctx.fillStyle = color;
+      roundRect(ctx, x, y, w, h, 2);
+      ctx.fill();
+    };
+    paintWheel(-18, -20, 14, 7, "#121212");
+    paintWheel(-18, 13, 14, 7, "#121212");
+    paintWheel(10, -20, 14, 7, "#121212");
+    paintWheel(10, 13, 14, 7, "#121212");
+    paintWheel(-15, -18.5, 8, 4, "#333");
+    paintWheel(-15, 14.5, 8, 4, "#333");
+    paintWheel(13, -18.5, 8, 4, "#333");
+    paintWheel(13, 14.5, 8, 4, "#333");
+
+    // Main body shell
+    const body = ctx.createLinearGradient(-26, -16, 30, 16);
+    body.addColorStop(0, "#b6e02e");
+    body.addColorStop(0.35, "#e8ff47");
+    body.addColorStop(0.7, "#d4f23a");
+    body.addColorStop(1, "#8fb81a");
     ctx.fillStyle = body;
-    roundRect(ctx, -14, -9, 30, 18, 4);
+    // Sculpted GT silhouette
+    ctx.beginPath();
+    ctx.moveTo(28, 0);
+    ctx.quadraticCurveTo(26, -8, 16, -13);
+    ctx.lineTo(-8, -15);
+    ctx.quadraticCurveTo(-22, -14, -26, -8);
+    ctx.lineTo(-28, -4);
+    ctx.lineTo(-28, 4);
+    ctx.lineTo(-26, 8);
+    ctx.quadraticCurveTo(-22, 14, -8, 15);
+    ctx.lineTo(16, 13);
+    ctx.quadraticCurveTo(26, 8, 28, 0);
+    ctx.closePath();
     ctx.fill();
 
-    // Cockpit
-    ctx.fillStyle = "#0f1a16";
-    roundRect(ctx, -2, -6, 12, 12, 3);
+    // Dark side skirts
+    ctx.fillStyle = "rgba(15, 26, 22, 0.55)";
+    ctx.beginPath();
+    ctx.moveTo(-20, -15);
+    ctx.lineTo(14, -13);
+    ctx.lineTo(12, -10);
+    ctx.lineTo(-18, -11);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-20, 15);
+    ctx.lineTo(14, 13);
+    ctx.lineTo(12, 10);
+    ctx.lineTo(-18, 11);
+    ctx.closePath();
     ctx.fill();
 
-    // Nose stripe
-    ctx.fillStyle = "#0f1a16";
-    ctx.fillRect(10, -2.5, 8, 5);
+    // Hood highlight stripe
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
+    ctx.beginPath();
+    ctx.moveTo(8, -3);
+    ctx.lineTo(24, -2);
+    ctx.lineTo(24, 2);
+    ctx.lineTo(8, 3);
+    ctx.closePath();
+    ctx.fill();
 
-    // Wheels
-    ctx.fillStyle = "#111";
-    ctx.fillRect(-10, -11, 8, 3.5);
-    ctx.fillRect(-10, 7.5, 8, 3.5);
-    ctx.fillRect(6, -11, 8, 3.5);
-    ctx.fillRect(6, 7.5, 8, 3.5);
+    // Racing number plate
+    ctx.fillStyle = "#0f1a16";
+    roundRect(ctx, -6, -7, 14, 14, 3);
+    ctx.fill();
+    ctx.fillStyle = "#e8ff47";
+    ctx.font = "bold 11px Bebas Neue, Impact, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("07", 1, 1);
+
+    // Cockpit glass
+    const glass = ctx.createLinearGradient(6, -8, 20, 8);
+    glass.addColorStop(0, "#1c3d4f");
+    glass.addColorStop(0.5, "#3d7a96");
+    glass.addColorStop(1, "#0e2430");
+    ctx.fillStyle = glass;
+    ctx.beginPath();
+    ctx.moveTo(8, -8);
+    ctx.lineTo(18, -7);
+    ctx.quadraticCurveTo(22, 0, 18, 7);
+    ctx.lineTo(8, 8);
+    ctx.quadraticCurveTo(11, 0, 8, -8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Rear wing
+    ctx.fillStyle = "#0f1a16";
+    roundRect(ctx, -30, -12, 6, 24, 1.5);
+    ctx.fill();
+    ctx.fillStyle = "#1a2e24";
+    roundRect(ctx, -32, -14, 10, 3, 1);
+    ctx.fill();
+    roundRect(ctx, -32, 11, 10, 3, 1);
+    ctx.fill();
+
+    // Side mirrors
+    ctx.fillStyle = "#0f1a16";
+    roundRect(ctx, 2, -18, 7, 3, 1);
+    ctx.fill();
+    roundRect(ctx, 2, 15, 7, 3, 1);
+    ctx.fill();
 
     // Headlights
-    ctx.fillStyle = "rgba(255,250,220,0.9)";
-    ctx.fillRect(15, -6, 3, 3);
-    ctx.fillRect(15, 3, 3, 3);
+    ctx.fillStyle = "rgba(255,248,210,0.95)";
+    roundRect(ctx, 24, -9, 5, 5, 1.5);
+    ctx.fill();
+    roundRect(ctx, 24, 4, 5, 5, 1.5);
+    ctx.fill();
+    // Tail lights (brighten when braking)
+    ctx.fillStyle = car.braking ? "rgba(255,70,50,0.95)" : "rgba(220,40,40,0.75)";
+    roundRect(ctx, -29, -7, 3, 5, 1);
+    ctx.fill();
+    roundRect(ctx, -29, 2, 3, 5, 1);
+    ctx.fill();
+
+    // Front splitter accent
+    ctx.fillStyle = "#0f1a16";
+    ctx.fillRect(26, -5, 4, 10);
 
     ctx.restore();
   }

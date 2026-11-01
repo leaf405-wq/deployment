@@ -14,6 +14,9 @@ export class Car {
   vx = 0;
   vy = 0;
   onTrack = true;
+  /** Whether accelerate is held — used for exhaust / light FX. */
+  throttleOn = false;
+  braking = false;
   lap = 1;
   bestLapMs: number | null = null;
   currentLapMs = 0;
@@ -49,6 +52,8 @@ export class Car {
     this.vx = 0;
     this.vy = 0;
     this.onTrack = true;
+    this.throttleOn = false;
+    this.braking = false;
     this.lap = 1;
     this.bestLapMs = null;
     this.currentLapMs = 0;
@@ -82,6 +87,8 @@ export class Car {
 
     const throttle = controls.up ? 1 : 0;
     const braking = controls.down ? 1 : 0;
+    this.throttleOn = throttle > 0;
+    this.braking = braking > 0;
     const steerInput = (controls.left ? -1 : 0) + (controls.right ? 1 : 0);
 
     // Speed-sensitive steering: tighter at low speed, calmer at high
@@ -145,8 +152,8 @@ export class Car {
     if (this.onTrack && Math.abs(lateral) > 90 && Math.abs(this.speed) > 120) {
       if (this.skids.length > 400) this.skids.shift();
       this.skids.push({
-        x: this.x - forwardX * 10,
-        y: this.y - forwardY * 10,
+        x: this.x - forwardX * 16,
+        y: this.y - forwardY * 16,
         life: 1,
         angle: this.angle,
       });
