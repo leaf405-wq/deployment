@@ -50,7 +50,9 @@ body,
 }
 
 .hud .btn,
-.hud .overlay {
+.hud .overlay,
+.hud .diff-panel,
+.hud .diff-btn {
   pointer-events: auto;
 }
 
