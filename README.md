@@ -2,11 +2,17 @@
 
 专业贪吃蛇：精美光影、方向键操控、NPC 自动变长，撞到 NPC 即失败。10 关地图从 `20×20` 到 `100×100`。
 
-## Play（可直接点开玩）
+## Play
 
-**[Neon Serpent — Play](https://leaf405-wq.github.io/deployment/)**
+### 点这里直接玩（公网可点）
 
-> 若链接暂时 404：到仓库 **Settings → Pages**，Source 选 `Deploy from a branch`，Branch 选 `main` / `/ (root)`，保存后等 1–2 分钟再刷新。
+# [▶ Neon Serpent — Play](https://leaf405-wq.github.io/deployment/)
+
+备用同址：https://leaf405-wq.github.io/deployment/index.html
+
+> 不要用 `127.0.0.1` / 本机预览链接——那只在开发机内部有效。请用上面的 GitHub Pages 地址。
+
+打开后：选关 → 点页面上的 **Play** → 方向键 / WASD 游玩。
 
 ## 操作
 
@@ -23,7 +29,7 @@ npm install
 npm run dev
 ```
 
-构建：
+构建静态站（输出到 `docs/`，已用于 GitHub Pages）：
 
 ```bash
 npm run build
