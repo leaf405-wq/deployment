@@ -243,7 +243,7 @@ export function categoryRows(list: StoreTwin[]): CategoryRow[] {
   }));
 }
 
-export function twinReading(list: StoreTwin[]) {
+export function twinReading(list: StoreTwin[], asOf = AS_OF) {
   const now = rollup(list, "now");
   const then = rollup(list, "then");
   const rows = categoryRows(list);
@@ -253,7 +253,7 @@ export function twinReading(list: StoreTwin[]) {
   const weak = worstConversion(crowded.length > 0 ? crowded : list);
   const churn = steepestChurn(list);
   return [
-    `截至 ${AS_OF}，五十家店的转化是 ${formatRate(conversion({ ...now, byCategory: now.byCategory }))}，环比上月同刻 ${formatPct(pctDelta(conversion(asShot(now)), conversion(asShot(then))))}。人流 ${formatPct(pctDelta(now.visitors, then.visitors))}，成交额 ${formatPct(pctDelta(now.sales, then.sales))}。`,
+    `截至 ${asOf}，五十家店的转化是 ${formatRate(conversion({ ...now, byCategory: now.byCategory }))}，环比上月同刻 ${formatPct(pctDelta(conversion(asShot(now)), conversion(asShot(then))))}。人流 ${formatPct(pctDelta(now.visitors, then.visitors))}，成交额 ${formatPct(pctDelta(now.sales, then.sales))}。`,
     `${storeLabel(weak)}人来了，转化掉得最多，环比 ${formatPct(pctDelta(conversion(weak.now), conversion(weak.then)))}。先看顾问在不在，而不是再加人流。`,
     `${leading.category}是此刻成交额最大的类别。${slipping.category}环比 ${formatPct(slipping.delta)}。客单价要跟类别一起看：高珠会把它抬高，丝巾会把它拉低。`,
     `${storeLabel(churn)}的流失率从 ${formatRate(churn.then.churn)} 到 ${formatRate(churn.now.churn)}，环比 ${formatPct(pctDelta(churn.now.churn, churn.then.churn))}。这是名册的事，不是橱窗的事。`,

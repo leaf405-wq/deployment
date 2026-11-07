@@ -159,3 +159,20 @@
     color: #1c1915;
   }
 }
+
+@keyframes soie-minute {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.minute-bar {
+  transform-origin: left center;
+  animation-name: soie-minute;
+  animation-duration: 60s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}

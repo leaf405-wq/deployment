@@ -360,21 +360,26 @@ function cityShare(store: StoreTwin, list: StoreTwin[], when: "now" | "then") {
   return total === 0 ? 0 : store[when].visitors / total;
 }
 
-export function buildFloor(store: StoreTwin, list: StoreTwin[] = stores): FloorTwin {
+export function buildFloor(store: StoreTwin, list: StoreTwin[] = stores, minuteKey = "base"): FloorTwin {
   const rand = mulberry32(hash(`${store.id}:floor`));
   const nowDoor = passersFor(store.now.visitors, store.tier, rand);
   const thenDoor = passersFor(store.then.visitors, store.tier, rand);
   const layout = LAYOUTS[store.tier];
-  const dwellWeights = layout.zones.map((zone) => {
+  let dwellWeights = layout.zones.map((zone) => {
     const tierBias = store.tier === "预约室" && zone.category === "高珠" ? 1.8 : store.tier === "旗舰" && zone.category === "手袋" ? 1.25 : 1;
     return zone.dwell * tierBias * (0.72 + rand() * 0.56);
   });
+  let pathWeights = layout.paths.map((path) => path.pull * (0.78 + rand() * 0.44));
+  if (minuteKey !== "base") {
+    const wave = mulberry32(hash(`${store.id}:wave:${minuteKey}`));
+    dwellWeights = dwellWeights.map((weight) => weight * (0.84 + wave() * 0.32));
+    pathWeights = pathWeights.map((weight) => weight * (0.86 + wave() * 0.28));
+  }
   const dwellSum = dwellWeights.reduce((acc, weight) => acc + weight, 0);
   const zones: FloorZone[] = layout.zones.map((zone, index) => ({
     ...zone,
     dwellShare: dwellWeights[index] / dwellSum,
   }));
-  const pathWeights = layout.paths.map((path) => path.pull * (0.78 + rand() * 0.44));
   const pathSum = pathWeights.reduce((acc, weight) => acc + weight, 0);
   const shares = pathWeights.map((weight) => weight / pathSum);
   const buyers = apportion(

@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { FloorPanel } from "@/components/floor-panel";
 import { Button } from "@/components/ui/button";
+import { minuteClock } from "@/lib/clock";
 import { floorAnswer } from "@/lib/floor";
 import { Input } from "@/components/ui/input";
+import { projectNetwork } from "@/lib/live";
 import {
-  AS_OF,
-  COMPARED_TO,
   aov,
   askTwin,
   categoryRows,
@@ -21,6 +21,7 @@ import {
   stores,
   twinReading,
   twinYuan,
+  type StoreTwin,
 } from "@/lib/twin";
 
 type Lens = "all" | "conversion-down" | "churn-up";
@@ -32,14 +33,15 @@ const lenses: { id: Lens; label: string }[] = [
 ];
 
 export function TwinView() {
+  const clock = useMinuteClock();
+  const live = useMemo(() => (clock ? projectNetwork(stores, clock) : stores), [clock]);
   const [lens, setLens] = useState<Lens>("all");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<string | null>(null);
-  const reading = useMemo(() => twinReading(stores), []);
+  const reading = useMemo(() => twinReading(live, clock?.label), [live, clock]);
 
-  const visible = stores.filter((store) => {
+  const visible = live.filter((store) => {
     const haystack = `${store.city}${store.name}${store.region}`;
     if (query.trim() && !haystack.includes(query.trim())) return false;
     if (lens === "conversion-down") return (pctDelta(conversion(store.now), conversion(store.then)) ?? 0) < 0;
@@ -47,8 +49,8 @@ export function TwinView() {
     return true;
   });
 
-  const selected = stores.find((store) => store.id === selectedId) ?? null;
-  const scope = selected ? [selected] : visible.length > 0 ? visible : stores;
+  const selected = live.find((store) => store.id === selectedId) ?? null;
+  const scope = selected ? [selected] : visible.length > 0 ? visible : live;
   const now = rollup(scope, "now");
   const then = rollup(scope, "then");
   const rows = categoryRows(scope);
@@ -56,16 +58,27 @@ export function TwinView() {
 
   function ask(text: string) {
     setQuestion(text);
-    setAnswer(floorAnswer(text) ?? askTwin(text));
   }
 
+  const spoken = question.trim() ? (floorAnswer(question, live) ?? askTwin(question, live)) : null;
+
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl" data-minute={clock?.key ?? "pending"}>
       <p className="text-[11px] tracking-[0.22em] text-[#8c734b]">孪生 · 五十家店</p>
       <h1 className="mt-3 font-serif text-[2.1rem] leading-tight font-medium md:text-5xl">同刻看完全网</h1>
-      <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[#3c342c]">
-        样本时刻 {AS_OF}，对照 {COMPARED_TO}。地图上的圆是到店人流，颜色是转化相对上月同刻的方向。点一家店，下面展开这一家的平面：进店占比、走动路程、客单量和品类。没有个人轨迹，只有汇总。
-      </p>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <p className="max-w-2xl text-[15px] leading-7 text-[#3c342c]">
+          {clock
+            ? `这一分钟 ${clock.label}（上海），对照 ${clock.compared}。`
+            : "正在对齐上海这一分钟。"}
+          全国地图、名单、类别和店内平面在每一分钟的整点一起换。点一家店，看它的柜位；鼠标放在柜位上，看这一分钟的人数和金额。
+        </p>
+        <div className="h-px w-full bg-[#ebe4d6] sm:w-44" aria-hidden="true">
+          {clock ? (
+            <div key={clock.key} className="minute-bar h-px bg-[#8c734b]" style={{ animationDelay: `-${clock.elapsed}s` }} />
+          ) : null}
+        </div>
+      </div>
 
       <div className="mt-6 border-l border-[#8c734b] pl-4">
         {reading.map((line) => (
@@ -105,7 +118,7 @@ export function TwinView() {
           </button>
         ))}
       </div>
-      {answer ? <p className="mt-3 max-w-3xl text-sm leading-7">{answer}</p> : null}
+      {spoken ? <p className="mt-3 max-w-3xl text-sm leading-7">{spoken}</p> : null}
 
       <section className="mt-8" aria-label="当前范围">
         <p className="text-[11px] tracking-[0.16em] text-[#6d645b]">
@@ -164,12 +177,13 @@ export function TwinView() {
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.8fr)]">
         <div>
           <TwinMap
+            points={live}
             visibleIds={visible.map((store) => store.id)}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
           <p className="mt-2 text-xs leading-5 text-[#6d645b]">
-            金点是转化不低于上月同刻，赤点是低于。圆越大，到店越多。点一个圆，看这一家的店内热力。底图来自 OpenFreeMap。
+            金点是转化不低于上月同刻，赤点是低于。圆越大，到店越多。点一个圆，看这一家的柜位。底图来自 OpenFreeMap。
           </p>
         </div>
         <div className="max-h-[560px] overflow-y-auto border border-[#d9d1c3]">
@@ -210,8 +224,12 @@ export function TwinView() {
       </div>
 
       <FloorPanel
-        store={selected ?? stores.find((store) => store.id === "sh-huaihai") ?? stores[0]}
+        store={selected ?? live.find((store) => store.id === "sh-huaihai") ?? live[0]}
+        list={live}
         explicit={selected !== null}
+        minuteKey={clock?.key ?? "base"}
+        stamp={clock?.label ?? "这一分钟"}
+        compared={clock?.compared ?? "上月同一分钟"}
       />
 
       <section className="mt-8">
@@ -273,10 +291,12 @@ function Metric({
 }
 
 function TwinMap({
+  points,
   visibleIds,
   selectedId,
   onSelect,
 }: {
+  points: StoreTwin[];
   visibleIds: string[];
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -285,15 +305,16 @@ function TwinMap({
   const mapRef = useRef<MapLibreMap | null>(null);
   const [failed, setFailed] = useState(false);
   const onSelectRef = useRef(onSelect);
-  const dataRef = useRef(geojson(visibleIds, selectedId));
+  const signature = points.map((store) => `${store.id}:${store.now.visitors}:${store.now.sales}:${store.now.buyers}`).join("|");
+  const dataRef = useRef(geojson(points, visibleIds, selectedId));
 
   useEffect(() => {
     onSelectRef.current = onSelect;
-    const data = geojson(visibleIds, selectedId);
+    const data = geojson(points, visibleIds, selectedId);
     dataRef.current = data;
     const source = mapRef.current?.getSource("stores");
     if (source?.type === "geojson") (source as GeoJSONSource).setData(data);
-  }, [onSelect, selectedId, visibleIds]);
+  }, [onSelect, selectedId, visibleIds, points, signature]);
 
   useEffect(() => {
     const node = ref.current;
@@ -365,11 +386,54 @@ function TwinMap({
   );
 }
 
-function geojson(visibleIds: string[], selectedId: string | null) {
+const minuteListeners = new Set<() => void>();
+let minuteNow = new Date();
+let minuteTimer = 0;
+
+function publishMinute() {
+  const next = new Date();
+  if (minuteClock(next).key === minuteClock(minuteNow).key) return;
+  minuteNow = next;
+  for (const listener of minuteListeners) listener();
+}
+
+function subscribeMinute(listener: () => void) {
+  minuteListeners.add(listener);
+  publishMinute();
+  if (!minuteTimer) {
+    const tick = () => {
+      minuteNow = new Date();
+      for (const item of minuteListeners) item();
+      const wait = 60000 - (minuteNow.getSeconds() * 1000 + minuteNow.getMilliseconds()) + 30;
+      minuteTimer = window.setTimeout(tick, wait);
+    };
+    const wait = 60000 - (minuteNow.getSeconds() * 1000 + minuteNow.getMilliseconds()) + 30;
+    minuteTimer = window.setTimeout(tick, wait);
+  }
+  const onVisible = () => {
+    if (document.visibilityState === "visible") publishMinute();
+  };
+  document.addEventListener("visibilitychange", onVisible);
+  return () => {
+    minuteListeners.delete(listener);
+    document.removeEventListener("visibilitychange", onVisible);
+    if (minuteListeners.size === 0 && minuteTimer) {
+      window.clearTimeout(minuteTimer);
+      minuteTimer = 0;
+    }
+  };
+}
+
+function useMinuteClock() {
+  const date = useSyncExternalStore(subscribeMinute, () => minuteNow, () => null);
+  return useMemo(() => (date ? minuteClock(date) : null), [date]);
+}
+
+function geojson(points: StoreTwin[], visibleIds: string[], selectedId: string | null) {
   const visible = new Set(visibleIds);
   return {
     type: "FeatureCollection" as const,
-    features: stores.map((store) => ({
+    features: points.map((store) => ({
       type: "Feature" as const,
       geometry: { type: "Point" as const, coordinates: [store.lng, store.lat] },
       properties: {
