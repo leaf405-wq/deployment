@@ -44,8 +44,8 @@ app.innerHTML = `
         <p class="level-blurb" data-blurb>${LEVELS[0].blurb}</p>
 
         <div class="menu-actions">
-          <a class="play-btn" href="#play" data-play role="button">Play</a>
-          <p class="hint">方向键 / WASD 移动 · 空格暂停 · 吃到目标分数通关</p>
+          <button type="button" class="play-btn" data-play>▶ Play 开始游戏</button>
+          <p class="hint">点关卡卡片可选难度 · 再点 Play（或双击关卡）开局 · 方向键 / WASD</p>
         </div>
       </section>
 
@@ -65,6 +65,7 @@ app.innerHTML = `
 `;
 
 const canvas = app.querySelector<HTMLCanvasElement>("#stage")!;
+canvas.tabIndex = 0;
 const ui = app.querySelector<HTMLElement>("#ui")!;
 const engine = new Engine();
 const input = new Input();
@@ -126,17 +127,28 @@ function syncPhase() {
   }
 }
 
+function startGame(level?: number) {
+  if (level != null) engine.selectLevel(level);
+  syncLevelCards();
+  engine.start();
+  syncPhase();
+  // Ensure keyboard focus for arrow keys
+  window.focus();
+  canvas.focus();
+}
+
 ui.querySelectorAll<HTMLButtonElement>("[data-pick]").forEach((btn) => {
   btn.addEventListener("click", () => {
     engine.selectLevel(Number(btn.dataset.pick));
     syncLevelCards();
   });
+  btn.addEventListener("dblclick", () => {
+    startGame(Number(btn.dataset.pick));
+  });
 });
 
-ui.querySelector("[data-play]")!.addEventListener("click", (e) => {
-  e.preventDefault();
-  engine.start();
-  syncPhase();
+ui.querySelector("[data-play]")!.addEventListener("click", () => {
+  startGame();
 });
 
 ui.querySelector("[data-resume]")!.addEventListener("click", () => {
