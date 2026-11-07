@@ -100,9 +100,14 @@ export function MorningView() {
       <section className="mt-10">
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-serif text-2xl font-medium">四家店，昨天</h2>
-          <Link href="/playbook" className="text-[13px] text-[#8c734b] underline-offset-4 hover:underline">
-            这套判断从哪来
-          </Link>
+          <span className="flex gap-4">
+            <Link href="/twin" className="text-[13px] text-[#8c734b] underline-offset-4 hover:underline">
+              五十家同刻
+            </Link>
+            <Link href="/playbook" className="text-[13px] text-[#8c734b] underline-offset-4 hover:underline">
+              这套判断从哪来
+            </Link>
+          </span>
         </div>
         <div className="mt-4 divide-y divide-[#d9d1c3] border-y border-[#d9d1c3]">
           {stores.map((store) => (
