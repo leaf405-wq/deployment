@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 3847",
     "lint": "eslint",
-    "test": "tsx --test src/lib/engine.test.ts src/lib/twin.test.ts"
+    "test": "tsx --test src/lib/engine.test.ts src/lib/twin.test.ts src/lib/floor.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

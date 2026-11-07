@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
+import { FloorPanel } from "@/components/floor-panel";
 import { Button } from "@/components/ui/button";
+import { floorAnswer } from "@/lib/floor";
 import { Input } from "@/components/ui/input";
 import {
   AS_OF,
@@ -54,7 +56,7 @@ export function TwinView() {
 
   function ask(text: string) {
     setQuestion(text);
-    setAnswer(askTwin(text));
+    setAnswer(floorAnswer(text) ?? askTwin(text));
   }
 
   return (
@@ -62,7 +64,7 @@ export function TwinView() {
       <p className="text-[11px] tracking-[0.22em] text-[#8c734b]">孪生 · 五十家店</p>
       <h1 className="mt-3 font-serif text-[2.1rem] leading-tight font-medium md:text-5xl">同刻看完全网</h1>
       <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[#3c342c]">
-        样本时刻 {AS_OF}，对照 {COMPARED_TO}。地图上的圆是到店人流，颜色是转化相对上月同刻的方向。没有个人轨迹，只有门店汇总。
+        样本时刻 {AS_OF}，对照 {COMPARED_TO}。地图上的圆是到店人流，颜色是转化相对上月同刻的方向。点一家店，下面展开这一家的平面：进店占比、走动路程、客单量和品类。没有个人轨迹，只有汇总。
       </p>
 
       <div className="mt-6 border-l border-[#8c734b] pl-4">
@@ -92,7 +94,7 @@ export function TwinView() {
         </Button>
       </form>
       <div className="mt-2 flex flex-wrap gap-2">
-        {["哪家流失升得最快", "转化掉在哪里", "全网客单价", "成都人流"].map((prompt) => (
+        {["哪家流失升得最快", "转化掉在哪里", "全网客单价", "淮海旗舰进店多少"].map((prompt) => (
           <button
             key={prompt}
             type="button"
@@ -167,7 +169,7 @@ export function TwinView() {
             onSelect={setSelectedId}
           />
           <p className="mt-2 text-xs leading-5 text-[#6d645b]">
-            金点是转化不低于上月同刻，赤点是低于。圆越大，到店越多。底图来自 OpenFreeMap。
+            金点是转化不低于上月同刻，赤点是低于。圆越大，到店越多。点一个圆，看这一家的店内热力。底图来自 OpenFreeMap。
           </p>
         </div>
         <div className="max-h-[560px] overflow-y-auto border border-[#d9d1c3]">
@@ -206,6 +208,11 @@ export function TwinView() {
           )}
         </div>
       </div>
+
+      <FloorPanel
+        store={selected ?? stores.find((store) => store.id === "sh-huaihai") ?? stores[0]}
+        explicit={selected !== null}
+      />
 
       <section className="mt-8">
         <h2 className="font-serif text-2xl font-medium">类别成交额</h2>
