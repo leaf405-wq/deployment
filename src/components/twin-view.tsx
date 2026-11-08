@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { FloorPanel } from "@/components/floor-panel";
+import { VirtualAtelier } from "@/components/virtual-atelier";
 import { Button } from "@/components/ui/button";
 import { minuteClock } from "@/lib/clock";
 import { floorAnswer } from "@/lib/floor";
@@ -71,7 +72,11 @@ export function TwinView() {
           {clock
             ? `这一分钟 ${clock.label}（上海），对照 ${clock.compared}。`
             : "正在对齐上海这一分钟。"}
-          全国地图、名单、类别和店内平面在每一分钟的整点一起换。点一家店，看它的柜位；鼠标放在柜位上，看这一分钟的人数和金额。
+          全国地图、名单、类别和店内平面在每一分钟的整点一起换。点一家店，看它的柜位；鼠标放在柜位上，看这一分钟的人数和金额。往下是
+          <a href="#virtual" className="mx-1 border-b border-[#8c734b]">
+            虚拟四间
+          </a>
+          ：远程导购、转台、样衣、热力与动线、空柜、陈列方案、巡展和十二只静水。
         </p>
         <div className="h-px w-full bg-[#ebe4d6] sm:w-44" aria-hidden="true">
           {clock ? (
@@ -230,6 +235,13 @@ export function TwinView() {
         minuteKey={clock?.key ?? "base"}
         stamp={clock?.label ?? "这一分钟"}
         compared={clock?.compared ?? "上月同一分钟"}
+      />
+
+      <VirtualAtelier
+        store={selected ?? live.find((store) => store.id === "sh-huaihai") ?? live[0]}
+        list={live}
+        minuteKey={clock?.key ?? "base"}
+        stamp={clock?.label ?? "这一分钟"}
       />
 
       <section className="mt-8">

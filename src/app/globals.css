@@ -176,3 +176,20 @@
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
+
+.path-flow {
+  stroke-dasharray: 1.6 1.1;
+  animation: path-flow 2.8s linear infinite;
+}
+
+@keyframes path-flow {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-flow {
+    animation: none;
+  }
+}
