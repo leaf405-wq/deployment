@@ -26,11 +26,10 @@ npm install
 npm run dev
 ```
 
-正式在本地跑：
+正式在本地跑。`npm start` 会先构建，再打开服务：
 
 ```bash
 npm install
-npm run build
 npm start
 ```
 

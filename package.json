@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 3847",
     "build": "next build",
-    "start": "next start -H 127.0.0.1 -p 3847",
+    "start": "next build && next start -H 127.0.0.1 -p 3847",
     "lint": "eslint",
     "test": "tsx --test src/lib/engine.test.ts src/lib/twin.test.ts src/lib/floor.test.ts src/lib/live.test.ts src/lib/virtual.test.ts"
   },
