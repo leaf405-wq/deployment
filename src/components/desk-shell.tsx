@@ -87,8 +87,6 @@ export function DeskShell({ children }: { children: React.ReactNode }) {
         <div className="hidden items-end justify-between gap-6 border-b border-[#d9d1c3] px-10 py-5 md:flex">
           <div>
             <p className="text-[12px] tracking-[0.16em] text-[#6d645b]">
-              {maison.name} {maison.latin}
-              <span className="px-2 text-[#c8b48a]">/</span>
               {maison.desk}
               <span className="px-2 text-[#c8b48a]">/</span>
               {maison.season}
