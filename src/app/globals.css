@@ -160,7 +160,7 @@
   }
 }
 
-@keyframes soie-minute {
+@keyframes minute-sweep {
   from {
     transform: scaleX(0);
   }
@@ -171,7 +171,7 @@
 
 .minute-bar {
   transform-origin: left center;
-  animation-name: soie-minute;
+  animation-name: minute-sweep;
   animation-duration: 60s;
   animation-timing-function: linear;
   animation-fill-mode: forwards;

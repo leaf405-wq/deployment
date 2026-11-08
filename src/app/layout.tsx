@@ -5,8 +5,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "索瓦 · 奢品运营台",
-    template: "%s · 索瓦",
+    default: "之之风速 · 奢品运营台",
+    template: "%s · 之之风速",
   },
   description:
     "索伦邸中国区的运营台。晨会只留三件决定，名册写明不该做什么，内容工坊按品牌法典起草。",

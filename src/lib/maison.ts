@@ -1,5 +1,7 @@
 export const TODAY = "2026-11-07";
 
+export const productName = "之之风速";
+
 export const maison = {
   latin: "Maison Solenne",
   name: "索伦邸",

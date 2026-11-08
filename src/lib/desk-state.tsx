@@ -9,8 +9,8 @@ type Persisted = {
 };
 
 const empty: Persisted = { contacted: {}, adopted: [], invited: {} };
-const KEY = "soie-desk-v1";
-const EVENT = "soie-desk-change";
+const KEY = "zhizhi-desk-v1";
+const EVENT = "zhizhi-desk-change";
 
 function parse(raw: string): Persisted {
   if (!raw) return empty;

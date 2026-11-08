@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "cn";
-import { maison } from "@/lib/maison";
+import { maison, productName } from "@/lib/maison";
 
 const nav = [
   { href: "/", label: "晨会", index: "01" },
@@ -24,10 +24,9 @@ export function DeskShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh md:flex">
-      <aside className="sticky top-0 hidden h-dvh w-[96px] shrink-0 flex-col bg-[#161411] text-[#f3efe6] md:flex">
-        <div className="px-4 pt-7">
-          <p className="font-display text-[2rem] leading-none font-medium italic text-[#f4efe4]">Soie</p>
-          <p className="mt-2 text-[10px] tracking-[0.28em] text-[#c8b48a]">索瓦</p>
+      <aside className="sticky top-0 hidden h-dvh w-[108px] shrink-0 flex-col bg-[#161411] text-[#f3efe6] md:flex">
+        <div className="px-3 pt-7">
+          <p className="font-serif text-[15px] leading-5 font-medium text-[#f4efe4]">{productName}</p>
         </div>
         <nav className="mt-10 flex flex-col" aria-label="运营台">
           {nav.map((item) => {
@@ -62,7 +61,7 @@ export function DeskShell({ children }: { children: React.ReactNode }) {
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-30 bg-[#161411] text-[#f3efe6] md:hidden">
           <div className="flex items-baseline justify-between px-4 pt-4">
-            <p className="font-display text-[1.8rem] leading-none italic">Soie</p>
+            <p className="font-serif text-[1.35rem] leading-none">{productName}</p>
             <p className="text-[10px] tracking-[0.18em] text-[#c8b48a]">样本 · 不外发</p>
           </div>
           <nav className="mt-3 flex gap-1 overflow-x-auto px-3 pb-3" aria-label="运营台">

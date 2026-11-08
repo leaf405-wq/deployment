@@ -30,7 +30,7 @@ export function PlaybookView() {
           守住价格，再谈这一天
         </h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[#3c342c]">
-          大众品牌的运营台帮你多卖一件。奢侈品的运营台先告诉你哪一件不该卖、哪一个人不该被打扰。下面六条是索瓦每天在用的顺序。
+          大众品牌的运营台帮你多卖一件。奢侈品的运营台先告诉你哪一件不该卖、哪一个人不该被打扰。下面六条是之之风速每天在用的顺序。
         </p>
 
         {chapters.map((chapter) => (
