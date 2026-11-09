@@ -6,6 +6,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "predev": "node scripts/dev-check.mjs",
     "dev": "next dev -H 127.0.0.1 -p 3847",
     "build": "next build",
     "start": "next build && next start -H 127.0.0.1 -p 3847",
