@@ -659,8 +659,9 @@ const factory = (e) => {
         [
           "TwinBoard",
           0,
-          function () {
-            let e,
+          function (sceneProps) {
+            let scene = (sceneProps && sceneProps.scene) || "boundary",
+              e,
               n,
               l,
               _,
@@ -924,29 +925,29 @@ const factory = (e) => {
                           className:
                             "flex flex-wrap items-center gap-x-4 gap-y-2 text-xs tracking-[0.16em] text-[#6f675c]",
                           children: [
-                            (0, t.jsx)("a", {
-                              href: "#boundary",
-                              className: "hover:text-[#1c1915]",
+                            (0, t.jsx)(s.default, {
+                              href: "/",
+                              className: scene === "boundary" ? "text-[#1c1915]" : "hover:text-[#1c1915]",
                               children: "边界",
                             }),
-                            (0, t.jsx)("a", {
-                              href: "#watch",
-                              className: "hover:text-[#1c1915]",
+                            (0, t.jsx)(s.default, {
+                              href: "/watch",
+                              className: scene === "watch" ? "text-[#1c1915]" : "hover:text-[#1c1915]",
                               children: "值守",
                             }),
-                            (0, t.jsx)("a", {
-                              href: "#advisor",
-                              className: "hover:text-[#1c1915]",
+                            (0, t.jsx)(s.default, {
+                              href: "/advisor",
+                              className: scene === "advisor" ? "text-[#1c1915]" : "hover:text-[#1c1915]",
                               children: "顾问",
                             }),
-                            (0, t.jsx)("a", {
-                              href: "#review",
-                              className: "hover:text-[#1c1915]",
+                            (0, t.jsx)(s.default, {
+                              href: "/review",
+                              className: scene === "review" ? "text-[#1c1915]" : "hover:text-[#1c1915]",
                               children: "审阅",
                             }),
-                            (0, t.jsx)("a", {
-                              href: "#caliber",
-                              className: "hover:text-[#1c1915]",
+                            (0, t.jsx)(s.default, {
+                              href: "/caliber",
+                              className: scene === "caliber" ? "text-[#1c1915]" : "hover:text-[#1c1915]",
                               children: "口径",
                             }),
                             (0, t.jsx)("a", {
@@ -968,437 +969,7 @@ const factory = (e) => {
                     className:
                       "mx-auto flex max-w-[1240px] flex-col px-5 py-8 sm:px-8 sm:py-10",
                     children: [
-                      (0, t.jsxs)("section", {
-                        className:
-                          "flex flex-wrap items-end justify-between gap-6 border-b border-[#ddc9a4] pb-7",
-                        children: [
-                          (0, t.jsxs)("div", {
-                            className: "max-w-3xl",
-                            children: [
-                              (0, t.jsxs)("p", {
-                                className:
-                                  "text-[11px] tracking-[0.42em] text-[#8c7344]",
-                                children: [
-                                  "中国区样本台 · ",
-                                  i.length,
-                                  " 家店",
-                                ],
-                              }),
-                              (0, t.jsx)("h1", {
-                                className:
-                                  "mt-3 text-[2.1rem] leading-none sm:text-[3rem]",
-                                style: N,
-                                children: "同刻看完全网",
-                              }),
-                              (0, t.jsx)("div", {
-                                className: "mt-4 h-px w-14 bg-[#b08948]",
-                              }),
-                              (0, t.jsx)("p", {
-                                className:
-                                  "mt-4 text-sm leading-7 text-[#3c342c]",
-                                children:
-                                  "奢侈品的私有化底座，先划定边界，再让代理只在品牌租户里工作。公有聊天入口关掉。合同、客档和账单不出域。说不清的数停下来等人，缺的数也不叫红灯。",
-                              }),
-                              (0, t.jsxs)("p", {
-                                className:
-                                  "mt-3 text-xs leading-6 text-[#8a8175]",
-                                children: [
-                                  "样本门店、样本客档，人物均为虚构。五张画面在这台浏览器里演算，不外发。样本定在 ",
-                                  c,
-                                  "。",
-                                ],
-                              }),
-                            ],
-                          }),
-                          (0, t.jsxs)("div", {
-                            className: "text-sm text-[#6f675c]",
-                            children: [
-                              (0, t.jsx)("p", {
-                                className: "tracking-[0.18em] text-[#8c7344]",
-                                children: "此刻 · 上海",
-                              }),
-                              (0, t.jsx)("p", {
-                                className:
-                                  "mt-2 tabular-nums tracking-[0.14em]",
-                                children: U || "—",
-                              }),
-                              (0, t.jsxs)("p", {
-                                className:
-                                  "mt-3 max-w-[16rem] text-xs leading-6",
-                                children: [
-                                  "正在看 ",
-                                  v(V),
-                                  "。点一家店，平面、顾问、审阅和口径跟着这一家走。",
-                                ],
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
-                      (0, t.jsxs)("section", {
-                        id: "network",
-                        className: "scroll-mt-16 pt-8",
-                        children: [
-                          (0, t.jsxs)("div", {
-                            className:
-                              "grid gap-3 sm:grid-cols-2 lg:grid-cols-5",
-                            children: [
-                              (0, t.jsx)(w, {
-                                label: "到店人流",
-                                value: I.net.visitors.toLocaleString("zh-CN"),
-                                delta: `环比 ${u(I.net.trafficMom)}`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "成交额",
-                                value: m(I.net.sales),
-                                delta: `环比 ${u(I.net.salesMom)}`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "客单价",
-                                value: m(I.net.atv),
-                                delta: `环比 ${u(I.net.atvMom)}`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "转化率",
-                                value: h(I.net.conversion),
-                                delta: `环比 ${u(I.net.convMom)}`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "流失率",
-                                value: h(I.net.churn),
-                                delta: `环比 ${u(I.net.churnMom)}`,
-                              }),
-                            ],
-                          }),
-                          (0, t.jsx)("div", {
-                            className:
-                              "mt-4 space-y-2 text-sm leading-7 text-[#4e463d]",
-                            children: I.lines.map((e) =>
-                              (0, t.jsx)("p", { children: e }, e),
-                            ),
-                          }),
-                        ],
-                      }),
-                      (0, t.jsxs)("section", {
-                        className:
-                          "mt-8 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.8fr)]",
-                        children: [
-                          (0, t.jsxs)("div", {
-                            className:
-                              "border border-[#e4d7c4] bg-[#faf7f2] p-4 sm:p-5",
-                            children: [
-                              (0, t.jsxs)("div", {
-                                className:
-                                  "flex flex-wrap items-end justify-between gap-3",
-                                children: [
-                                  (0, t.jsxs)("div", {
-                                    children: [
-                                      (0, t.jsx)("p", {
-                                        className:
-                                          "text-[11px] tracking-[0.32em] text-[#8c7344]",
-                                        children: "样本点位",
-                                      }),
-                                      (0, t.jsx)("h2", {
-                                        className: "mt-2 text-2xl",
-                                        style: N,
-                                        children: "十二家店，同一分钟",
-                                      }),
-                                    ],
-                                  }),
-                                  (0, t.jsx)("p", {
-                                    className:
-                                      "max-w-xs text-xs leading-5 text-[#8a8175]",
-                                    children:
-                                      "金点是转化不低于上月同刻，赤点是低于。圆越大，到店越多。不接外部地图。",
-                                  }),
-                                ],
-                              }),
-                              (0, t.jsx)(k, { store: V, onChoose: Q }),
-                            ],
-                          }),
-                          (0, t.jsxs)("div", {
-                            className: "border border-[#e4d7c4] bg-[#faf7f2]",
-                            children: [
-                              (0, t.jsx)("p", {
-                                className:
-                                  "border-b border-[#eadfce] px-4 py-3 text-[11px] tracking-[0.28em] text-[#8c7344]",
-                                children: "名册",
-                              }),
-                              (0, t.jsx)("ul", {
-                                className: "max-h-[460px] overflow-auto",
-                                children: i.map((e) => {
-                                  let s = e.id === V.id;
-                                  return (0, t.jsx)(
-                                    "li",
-                                    {
-                                      children: (0, t.jsxs)("button", {
-                                        type: "button",
-                                        onClick: () => Q(e),
-                                        "aria-pressed": s,
-                                        className: `flex w-full flex-col gap-1 border-b border-[#f0e6d6] px-4 py-3 text-left ${s ? "bg-[#f3ead8]" : "hover:bg-[#f7f1e6]"}`,
-                                        children: [
-                                          (0, t.jsxs)("span", {
-                                            className:
-                                              "flex items-baseline justify-between gap-3",
-                                            children: [
-                                              (0, t.jsx)("span", {
-                                                style: N,
-                                                children: v(e),
-                                              }),
-                                              (0, t.jsx)("span", {
-                                                className:
-                                                  "text-[11px] tracking-[0.16em] text-[#8c7344]",
-                                                children: e.door,
-                                              }),
-                                            ],
-                                          }),
-                                          (0, t.jsxs)("span", {
-                                            className:
-                                              "text-xs leading-5 text-[#6f675c]",
-                                            children: [
-                                              e.visitors,
-                                              " 人 · 转化 ",
-                                              h(p(e)),
-                                              " · 客单 ",
-                                              m(e.atv),
-                                            ],
-                                          }),
-                                          (0, t.jsxs)("span", {
-                                            className: `text-xs ${e.convMom < 0 ? "text-[#8d3b32]" : "text-[#8c7344]"}`,
-                                            children: [
-                                              "转化环比 ",
-                                              u(e.convMom),
-                                              " · 流失 ",
-                                              h(e.churn),
-                                            ],
-                                          }),
-                                        ],
-                                      }),
-                                    },
-                                    e.id,
-                                  );
-                                }),
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
-                      (0, t.jsxs)("section", {
-                        id: "floor",
-                        className: "scroll-mt-16 mt-10",
-                        children: [
-                          (0, t.jsxs)("div", {
-                            className:
-                              "flex flex-wrap items-end justify-between gap-4",
-                            children: [
-                              (0, t.jsxs)("div", {
-                                children: [
-                                  (0, t.jsxs)("p", {
-                                    className:
-                                      "text-[11px] tracking-[0.32em] text-[#8c7344]",
-                                    children: ["分店平面 · ", V.door],
-                                  }),
-                                  (0, t.jsxs)("h2", {
-                                    className: "mt-2 text-3xl",
-                                    style: N,
-                                    children: [v(V), "的店内人流"],
-                                  }),
-                                ],
-                              }),
-                              (0, t.jsx)("p", {
-                                className:
-                                  "max-w-md text-sm leading-7 text-[#6f675c]",
-                                children:
-                                  "这一分钟，对照上月同一分钟。点一个柜位，看人数、件数和金额。样本推演，不接摄像头，不改库房。",
-                              }),
-                            ],
-                          }),
-                          (0, t.jsxs)("div", {
-                            className:
-                              "mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4",
-                            children: [
-                              (0, t.jsx)(w, {
-                                label: "廊前人流",
-                                value: q.passers.toLocaleString("zh-CN"),
-                                delta: `进店 ${V.visitors} 人`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "进店占比",
-                                value: h(q.entry),
-                                delta: `占样本到店 ${h(V.visitors / I.net.visitors)}`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "平均路程",
-                                value: `${q.meters.toFixed(1)} 米`,
-                                delta: `成交 ${V.deals} 笔`,
-                              }),
-                              (0, t.jsx)(w, {
-                                label: "客单量",
-                                value: `${q.upt.toFixed(2)} 件`,
-                                delta: m(V.atv),
-                              }),
-                            ],
-                          }),
-                          (0, t.jsxs)("div", {
-                            className:
-                              "mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,0.7fr)]",
-                            children: [
-                              (0, t.jsx)($, {
-                                floorZones: q.zones,
-                                activeId: Z.id,
-                                pathEnd: q.paths[0]?.end ?? Z.name,
-                                onChoose: (e) => L(e),
-                              }),
-                              (0, t.jsxs)("aside", {
-                                className:
-                                  "flex flex-col border border-[#e4d7c4] bg-[#faf7f2] p-5",
-                                children: [
-                                  (0, t.jsxs)("p", {
-                                    className:
-                                      "text-[11px] tracking-[0.28em] text-[#8c7344]",
-                                    children: ["这一分钟 · ", Z.name],
-                                  }),
-                                  (0, t.jsxs)("p", {
-                                    className: "mt-3 text-4xl",
-                                    style: N,
-                                    children: [Z.people, " 人"],
-                                  }),
-                                  (0, t.jsxs)("p", {
-                                    className:
-                                      "mt-3 text-sm leading-7 text-[#3c342c]",
-                                    children: [
-                                      "这一分钟停在这里，占店内停留 ",
-                                      h(Z.people / V.visitors),
-                                      "。",
-                                    ],
-                                  }),
-                                  (0, t.jsx)("p", {
-                                    className:
-                                      "mt-2 text-sm leading-7 text-[#3c342c]",
-                                    children: Z.priced
-                                      ? `${Z.name}成交 ${m(Z.amount)}，${Z.pieces} 件。`
-                                      : "这一格只记停留，不单独计成交。",
-                                  }),
-                                  (0, t.jsx)("ul", {
-                                    className:
-                                      "mt-5 space-y-3 border-t border-[#eadfce] pt-4",
-                                    children: q.paths.map((e) =>
-                                      (0, t.jsxs)(
-                                        "li",
-                                        {
-                                          className: "text-sm leading-6",
-                                          children: [
-                                            (0, t.jsx)("span", {
-                                              style: N,
-                                              children: e.name,
-                                            }),
-                                            (0, t.jsxs)("span", {
-                                              className:
-                                                "mt-1 block text-xs text-[#6f675c]",
-                                              children: [
-                                                "占进店 ",
-                                                h(e.share),
-                                                " · ",
-                                                e.meters.toFixed(1),
-                                                " 米 · 成交 ",
-                                                e.deals,
-                                                " 笔 · ",
-                                                e.end,
-                                              ],
-                                            }),
-                                          ],
-                                        },
-                                        e.name,
-                                      ),
-                                    ),
-                                  }),
-                                ],
-                              }),
-                            ],
-                          }),
-                          (0, t.jsxs)("div", {
-                            className:
-                              "mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]",
-                            children: [
-                              (0, t.jsx)("div", {
-                                className:
-                                  "space-y-2 text-sm leading-7 text-[#4e463d]",
-                                children: ((e = [...q.zones].sort(
-                                  (e, t) => t.people - e.people,
-                                )[0]),
-                                (n = [...q.categories].sort(
-                                  (e, t) => t.pieces - e.pieces,
-                                )[0]),
-                                (l = [...q.categories].sort(
-                                  (e, t) => t.amount - e.amount,
-                                )[0]),
-                                (_ = [...q.paths].sort(
-                                  (e, t) => t.share - e.share,
-                                )[0]),
-                                [
-                                  `${V.city}${V.name}廊前经过 ${q.passers.toLocaleString("zh-CN")} 人，走进这一家 ${V.visitors} 人，进店占比 ${h(q.entry)}。`,
-                                  `进店的人平均走 ${q.meters.toFixed(1)} 米。成交 ${V.deals} 笔，客单量 ${q.upt.toFixed(2)} 件，客单价 ${m(V.atv)}，环比 ${u(V.salesMom)}。`,
-                                  `停留最多的是${e.name}。件数最多的是${n.name}（${n.pieces} 件），金额最大的是${l.name}。走得最多的是「${_.name}」，占进店 ${h(_.share)}，这条路 ${_.meters.toFixed(1)} 米，主成交在${_.end}。`,
-                                ]).map((e) =>
-                                  (0, t.jsx)("p", { children: e }, e),
-                                ),
-                              }),
-                              (0, t.jsx)("ul", {
-                                className:
-                                  "border border-[#e4d7c4] bg-[#faf7f2]",
-                                children: q.categories.map((e) =>
-                                  (0, t.jsxs)(
-                                    "li",
-                                    {
-                                      className:
-                                        "flex items-baseline justify-between gap-3 border-b border-[#f0e6d6] px-4 py-3 text-sm last:border-b-0",
-                                      children: [
-                                        (0, t.jsx)("span", {
-                                          children: e.name,
-                                        }),
-                                        (0, t.jsxs)("span", {
-                                          className: "text-[#6f675c]",
-                                          children: [
-                                            e.pieces,
-                                            " 件 · ",
-                                            m(e.amount),
-                                          ],
-                                        }),
-                                      ],
-                                    },
-                                    e.name,
-                                  ),
-                                ),
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
-                      (0, t.jsxs)("section", {
-                        className: "mt-14 border-t border-[#ddc9a4] pt-10",
-                        children: [
-                          (0, t.jsx)("p", {
-                            className:
-                              "text-[11px] tracking-[0.42em] text-[#8c7344]",
-                            children: "五张画面 · 16:9",
-                          }),
-                          (0, t.jsx)("h2", {
-                            className: "mt-3 text-3xl",
-                            style: N,
-                            children: "代理只在租户里工作",
-                          }),
-                          (0, t.jsxs)("p", {
-                            className:
-                              "mt-3 max-w-3xl text-sm leading-7 text-[#4e463d]",
-                            children: [
-                              "顺序就是底座的顺序。边界先盖好，值守看着六条门禁，顾问和审阅对着上面选中的 ",
-                              v(V),
-                              "，口径说明哪些数还不能往下走。",
-                            ],
-                          }),
-                        ],
-                      }),
-                      (0, t.jsx)(M, {
+                      scene === "boundary" ? (0, t.jsx)(M, {
                         id: "boundary",
                         kicker: "01",
                         title: "边界代理",
@@ -1485,8 +1056,8 @@ const factory = (e) => {
                             }),
                           ],
                         }),
-                      }),
-                      (0, t.jsx)(M, {
+                      }) : null,
+scene === "watch" ? (0, t.jsx)(M, {
                         id: "watch",
                         kicker: "02",
                         title: "值守代理",
@@ -1614,8 +1185,8 @@ const factory = (e) => {
                             }),
                           ],
                         }),
-                      }),
-                      (0, t.jsx)(M, {
+                      }) : null,
+scene === "advisor" ? (0, t.jsx)(M, {
                         id: "advisor",
                         kicker: "03",
                         title: "顾问代理",
@@ -1809,8 +1380,8 @@ const factory = (e) => {
                             }),
                           ],
                         }),
-                      }),
-                      (0, t.jsx)(M, {
+                      }) : null,
+scene === "review" ? (0, t.jsx)(M, {
                         id: "review",
                         kicker: "04",
                         title: "审阅代理",
@@ -1928,8 +1499,8 @@ const factory = (e) => {
                             }),
                           ],
                         }),
-                      }),
-                      (0, t.jsx)(M, {
+                      }) : null,
+scene === "caliber" ? (0, t.jsx)(M, {
                         id: "caliber",
                         kicker: "05",
                         title: "口径代理",
@@ -2080,53 +1651,7 @@ const factory = (e) => {
                             }),
                           ],
                         }),
-                      }),
-                      (0, t.jsxs)("section", {
-                        className:
-                          "mt-10 border border-[#e4d7c4] bg-[#faf7f2] p-5 sm:p-6",
-                        children: [
-                          (0, t.jsx)("p", {
-                            className:
-                              "text-[11px] tracking-[0.28em] text-[#8c7344]",
-                            children: "类别成交额 · 十二家合计",
-                          }),
-                          (0, t.jsx)("ul", {
-                            className:
-                              "mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4",
-                            children: I.net.categories.map((e) =>
-                              (0, t.jsxs)(
-                                "li",
-                                {
-                                  className: "border-t border-[#e4d7c4] pt-3",
-                                  children: [
-                                    (0, t.jsx)("p", {
-                                      style: N,
-                                      children: e.name,
-                                    }),
-                                    (0, t.jsx)("p", {
-                                      className: "mt-1 text-lg tabular-nums",
-                                      children: m(e.amount),
-                                    }),
-                                    (0, t.jsxs)("p", {
-                                      className: "text-xs text-[#6f675c]",
-                                      children: [e.pieces, " 件"],
-                                    }),
-                                  ],
-                                },
-                                e.name,
-                              ),
-                            ),
-                          }),
-                          (0, t.jsxs)("p", {
-                            className: "mt-5 text-xs leading-6 text-[#8a8175]",
-                            children: [
-                              "成交额按样本客单和成交笔数加总，",
-                              m(I.net.sales),
-                              "。这是推演，不是门店系统回传。",
-                            ],
-                          }),
-                        ],
-                      }),
+                      }) : null,
                     ],
                   }),
                 ],

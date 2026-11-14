@@ -171,10 +171,10 @@ const factory = (e) => {
                             children: u || "—",
                           }),
                           (0, t.jsx)(r.default, {
-                            href: "/twin",
+                            href: "/",
                             className:
                               "tracking-[0.18em] text-[#8c7344] hover:text-[#1c1915]",
-                            children: "孪生",
+                            children: "场景代理",
                           }),
                           (0, t.jsx)(r.default, {
                             href: "/studio",
