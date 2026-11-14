@@ -1,15 +1,20 @@
 {
-  "name": "neon-serpent",
+  "name": "privatization-base",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 45321",
-    "build": "tsc && vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 45321"
+    "dev": "next dev -H 127.0.0.1 -p 3847",
+    "build": "next build",
+    "start": "next start -H 127.0.0.1 -p 3847"
+  },
+  "dependencies": {
+    "next": "^15.5.4",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "typescript": "~5.9.3",
-    "vite": "^6.3.5"
+    "@tailwindcss/postcss": "^4.1.16",
+    "tailwindcss": "^4.1.16"
   }
 }
