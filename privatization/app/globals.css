@@ -1,0 +1,42 @@
+@import "./fonts.css";
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #142033;
+  --primary: #0d2137;
+  --primary-foreground: #ffffff;
+  --border: #e1e7ee;
+  --ring: #8aa4c4;
+  --muted: #f4f7fa;
+  --secondary: #eef2f4;
+  --secondary-foreground: #142033;
+  --destructive: #9f2236;
+  --input: #e1e7ee;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-muted: var(--muted);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f3eee6;
+  color: #1c1915;
+  font-family: "Noto Sans SC", "Noto Serif SC", sans-serif;
+}
