@@ -1,13 +1,404 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>百草园 · 温室种植</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>策展百草园 · 之之风速</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background:
+      radial-gradient(ellipse at 50% 120%, rgba(40, 72, 130, .38), transparent 52%),
+      #03040c;
+    color: #dbe6ff;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  main {
+    width: min(720px, calc(100% - 36px));
+    margin: 0 auto;
+    padding: 36px 0 64px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: .42em;
+    text-indent: .42em;
+  }
+  .sub { margin: 10px 0 0; color: #7f95bb; font-size: 13px; letter-spacing: .12em; }
+  .author {
+    margin-top: 12px;
+    color: #6f8ab8;
+    font-size: 12px;
+    letter-spacing: .28em;
+    font-style: italic;
+  }
+  .author::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    margin-right: 8px;
+    background: linear-gradient(90deg, #5f7aa8, transparent);
+    vertical-align: middle;
+  }
+  .rules {
+    margin: 18px 0 28px;
+    padding: 0;
+    list-style: none;
+    color: #4f6b96;
+    font-size: 12px;
+    line-height: 1.9;
+    letter-spacing: .04em;
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  button, input { font-family: inherit; }
+  #reset {
+    border: 1px solid rgba(255, 140, 180, .28);
+    background: rgba(52, 26, 42, .62);
+    color: #ff9ec0;
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  #reset:hover { background: rgba(90, 40, 70, .88); }
+
+  .node { margin: 0 0 16px 0; }
+  .node .kids {
+    margin: 12px 0 0 22px;
+    padding-left: 16px;
+    border-left: 1px solid rgba(124, 170, 230, .28);
+  }
+  .phrase {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    padding: 10px 14px 10px 12px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+    background: rgba(16, 26, 48, .82);
+    color: #f2f7ff;
+    cursor: pointer;
+    text-align: left;
+  }
+  .phrase:hover {
+    box-shadow: 0 0 22px color-mix(in srgb, var(--c) 28%, transparent);
+  }
+  .lv {
+    flex: none;
+    min-width: 36px;
+    height: 22px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 22px;
+    text-align: center;
+    color: var(--c);
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+  }
+  .words {
+    font-family: "Songti SC", "STSong", "SimSun", serif;
+    font-size: 18px;
+    letter-spacing: .12em;
+  }
+  .joint { color: #ffc95e; }
+  .note {
+    display: block;
+    margin-top: 6px;
+    margin-left: 4px;
+    color: #6f86ad;
+    font-size: 12px;
+  }
+  .born .phrase { animation: rise .45s cubic-bezier(.2, .9, .3, 1.1); }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  form {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px dashed rgba(124, 170, 230, .4);
+    background: rgba(255, 255, 255, .03);
+    color: #e2edff;
+    font-size: 15px;
+    outline: none;
+  }
+  input:focus { border-color: rgba(140, 190, 255, .7); }
+  #write {
+    border: 1px solid rgba(120, 235, 175, .42);
+    background: rgba(60, 190, 130, .2);
+    color: #a8f0c8;
+    border-radius: 12px;
+    padding: 0 16px;
+    cursor: pointer;
+    letter-spacing: .12em;
+  }
+  #write:disabled { opacity: .45; cursor: default; }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%) translateY(12px);
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgba(14, 34, 27, .95);
+    border: 1px solid rgba(110, 225, 170, .38);
+    color: #a8f0c8;
+    opacity: 0;
+    pointer-events: none;
+    transition: .35s ease;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <h1>策展百草园</h1>
+      <p class="sub">末字相传，下一句取自《中国成语大全》</p>
+      <p class="sub" id="dict">正在载入成语字典…</p>
+      <div class="author">之之风速</div>
+    </div>
+    <button id="reset" type="button">重新开始</button>
+  </div>
+  <ul class="rules">
+    <li>点一句，用最后一个字，从成语字典里长出下一句。</li>
+    <li>一级只能写入字典里有的成语，后一句会自己弹出来。</li>
+    <li>园里任何一句都只出现一次。</li>
+  </ul>
+  <div id="garden"></div>
+  <form id="composer">
+    <input id="line" maxlength="16" placeholder="写入字典里的成语，例如 生不逢时" autocomplete="off" disabled />
+    <button id="write" type="submit">写入</button>
+  </form>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+/* 接龙只有三条：
+   1. 点击一句，用末字从《中国成语大全》生出下一句。
+   2. 在一级写入字典里的成语后，自动再长出一句。
+   3. 全园不得重复。 */
+const BY_HEAD = new Map();
+const IN_DICT = new Set();
+const COLORS = ["#ffc95e", "#7cc8ff", "#5fe3c0", "#b48cff", "#ff8fb4", "#ffa06a"];
+const LEVEL = "零一二三四五六七八九十";
+
+const garden = document.querySelector("#garden");
+const form = document.querySelector("#composer");
+const input = document.querySelector("#line");
+const writeBtn = document.querySelector("#write");
+const toastEl = document.querySelector("#toast");
+
+let seq = 1;
+let used = new Set();
+let fresh = new Set();
+let root = null;
+let toastTimer = 0;
+
+function levelName(depth) {
+  return (depth <= 10 ? LEVEL[depth] : depth) + "级";
+}
+
+function makeNode(parent, text, how) {
+  const node = {
+    id: seq++,
+    text,
+    how,
+    depth: parent.depth + 1,
+    children: []
+  };
+  parent.children.push(node);
+  used.add(text);
+  fresh.add(node.id);
+  return node;
+}
+
+function pick(char) {
+  const bucket = BY_HEAD.get(char);
+  if (!bucket) return null;
+  const open = [];
+  for (let i = 0; i < bucket.length; i++) {
+    if (!used.has(bucket[i])) open.push(bucket[i]);
+  }
+  if (!open.length) return null;
+  return open[Math.floor(Math.random() * open.length)];
+}
+
+function loadDictionary(text) {
+  const rows = text.split(/\r?\n/);
+  for (let i = 0; i < rows.length; i++) {
+    const line = rows[i].replace(/[^\u4e00-\u9fff]/g, "");
+    if (line.length < 2 || line.length > 16 || IN_DICT.has(line)) continue;
+    IN_DICT.add(line);
+    const head = line.charAt(0);
+    let bucket = BY_HEAD.get(head);
+    if (!bucket) {
+      bucket = [];
+      BY_HEAD.set(head, bucket);
+    }
+    bucket.push(line);
+  }
+}
+
+function reset() {
+  seq = 1;
+  used = new Set();
+  fresh = new Set();
+  root = { depth: 0, children: [] };
+  makeNode(root, "春风吹又生", "seed");
+  fresh.clear();
+  input.value = "";
+  render();
+}
+
+function sprout(node) {
+  const next = pick(node.text.slice(-1));
+  if (!next) {
+    toast("「" + node.text.slice(-1) + "」后面的句子都用过了");
+    return;
+  }
+  makeNode(node, next, "click");
+  render();
+}
+
+function readLine(raw) {
+  return raw.replace(/[^\u4e00-\u9fff]/g, "");
+}
+
+function toast(message) {
+  toastEl.textContent = message;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2200);
+}
+
+function phraseButton(node) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "phrase";
+  button.style.setProperty("--c", COLORS[Math.min(node.depth, COLORS.length - 1)]);
+  button.title = "点按，以「" + node.text.slice(-1) + "」接下一句";
+
+  const badge = document.createElement("span");
+  badge.className = "lv";
+  badge.textContent = levelName(node.depth);
+
+  const words = document.createElement("span");
+  words.className = "words";
+  const parentTail = node.how === "click" || node.how === "auto"
+    ? node.text.slice(0, 1)
+    : "";
+  if (parentTail && node.text.startsWith(parentTail)) {
+    const head = document.createElement("span");
+    head.className = "joint";
+    head.textContent = node.text.slice(0, 1);
+    words.append(head, document.createTextNode(node.text.slice(1, -1)));
+  } else {
+    words.append(document.createTextNode(node.text.slice(0, -1)));
+  }
+  const tail = document.createElement("span");
+  tail.className = "joint";
+  tail.textContent = node.text.slice(-1);
+  words.append(tail);
+
+  button.append(badge, words);
+  button.addEventListener("click", () => sprout(node));
+  return button;
+}
+
+function noteFor(node) {
+  if (node.how === "auto") return "自动弹出 · 由「" + node.text.slice(0, 1) + "」接来";
+  if (node.how === "click") return "点按接上 · 由「" + node.text.slice(0, 1) + "」接来";
+  if (node.how === "write") return "你写在一级的句子";
+  return "点按这一句，长出下一句";
+}
+
+function draw(node, box) {
+  const item = document.createElement("div");
+  item.className = "node" + (fresh.has(node.id) ? " born" : "");
+  item.append(phraseButton(node));
+  const note = document.createElement("span");
+  note.className = "note";
+  note.textContent = noteFor(node);
+  item.append(note);
+  if (node.children.length) {
+    const kids = document.createElement("div");
+    kids.className = "kids";
+    node.children.forEach((child) => draw(child, kids));
+    item.append(kids);
+  }
+  box.append(item);
+}
+
+function render() {
+  garden.replaceChildren();
+  root.children.forEach((child) => draw(child, garden));
+  fresh.clear();
+}
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = readLine(input.value);
+  if (!/^[\u4e00-\u9fff]{2,12}$/.test(text)) {
+    toast("请写 2 到 12 个汉字");
+    return;
+  }
+  if (!IN_DICT.has(text)) {
+    toast("成语大全里没有「" + text + "」");
+    return;
+  }
+  if (used.has(text)) {
+    toast("这一句已经在园里");
+    return;
+  }
+  const node = makeNode(root, text, "write");
+  input.value = "";
+  writeBtn.disabled = true;
+  render();
+  const next = pick(text.slice(-1));
+  window.setTimeout(() => {
+    if (next) makeNode(node, next, "auto");
+    else toast("已写下。这个字后面暂无现成的句子");
+    writeBtn.disabled = false;
+    render();
+  }, 460);
+});
+
+document.querySelector("#reset").addEventListener("click", reset);
+
+const dictEl = document.querySelector("#dict");
+fetch("idioms.txt")
+  .then((res) => {
+    if (!res.ok) throw new Error("missing");
+    return res.text();
+  })
+  .then((text) => {
+    loadDictionary(text);
+    dictEl.textContent = "已载入 " + IN_DICT.size + " 条成语";
+    input.disabled = false;
+    reset();
+  })
+  .catch(() => {
+    dictEl.textContent = "成语字典没有载入";
+    toast("成语字典没有载入");
+  });
+</script>
+</body>
 </html>
