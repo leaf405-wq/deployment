@@ -12,6 +12,7 @@ const nav = [
   { href: "/calendar", label: "体验", index: "04" },
   { href: "/playbook", label: "方法", index: "05" },
   { href: "/twin", label: "孪生", index: "06" },
+  { href: "/chengyu", label: "成语接龙", index: "07" },
 ];
 
 function isActive(pathname: string, href: string) {
